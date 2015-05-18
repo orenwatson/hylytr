@@ -1,3 +1,4 @@
+#!/usr/local/bin/hylytr
 green default :#(include|define|ifdef|if|elsif|else|endif|pragma):
 lime default :\<(if|while|else|return|goto|for|do|case|switch|default)\>:
 lime default :&&|\|\|:

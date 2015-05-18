@@ -60,7 +60,8 @@ int main(int argc, char **argv){
 		"The coloring extends from the start of what the first regex matches\n"
 		"to the end of what the second matches, if there is a second,\n"
 		"or the end of what the first matches if there is only one regex.\n"
-		"Later lines override the colors set by earlier lines.\n");
+		"Later lines override the colors set by earlier lines.\n"
+		"Lines starting with # are ignored\n"");
 		exit(1);
 	}
 	char buf[1000],rx1[500],rx2[500];
@@ -69,6 +70,7 @@ int main(int argc, char **argv){
 	struct hylight*cur=hllist;
 	int linenum=0;
 	while(fgets(buf,1000,hlf)){
+		if(buf[0]=='#')goto comment;
 		int i=0;
 		while(buf[i]<=' '&&buf[i]!=0)i++;
 		if(buf[i]==0)goto incomplete;
@@ -123,6 +125,7 @@ int main(int argc, char **argv){
 		cur->stillon=0;
 		cur->next=malloc(sizeof(struct hylight));
 		cur = cur->next;
+		comment:
 		linenum++;
 		continue;
 		incomplete:
