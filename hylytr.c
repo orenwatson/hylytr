@@ -4,21 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-/* A highlighter script consists of tuples
-color color /regex/ /regex/
-where color is a color name from the following:
-(normal)(bright)
-black	grey
-maroon	red
-green	lime
-olive	yellow
-navy	blue
-purple	fuchsia,magenta
-teal	cyan,aqua
-silver	white
-default	bold
-The regex may begin and end with any one non-whitespace character.
-*/
+/* Highlighting program by Oren Watson. */
 
 #define DEBUG 1
 typedef char bool;
@@ -55,7 +41,28 @@ int getcolor(char *s){
 }
 
 int main(int argc, char **argv){
-	if(argc<2)fprintf(stderr,"You didn't specify a hylytr script.\n");
+	if(argc<2){
+		printf("You didn't specify a hylytr script.\n"
+		"A highlighter script consists of lines of the form\n"
+		"color color /regex/ [/regex/]\n"
+		"Where each color is a color name from the following:\n"
+		"(normal)(bright) <- the bright version may be bold\n"
+		"black\tgrey\n"
+		"maroon\tred\n"
+		"green\tlime\n"
+		"olive\tyellow\n"
+		"navy\tblue\n"
+		"purple\tfuchsia,magenta\n"
+		"teal\tcyan,aqua\n"
+		"silver\twhite\n"
+		"default\tbold\n"
+		"Each regex may begin and end with any one non-whitespace character.\n"
+		"The coloring extends from the start of what the first regex matches\n"
+		"to the end of what the second matches, if there is a second,\n"
+		"or the end of what the first matches if there is only one regex.\n"
+		"Later lines override the colors set by earlier lines.\n");
+		exit(1);
+	}
 	char buf[1000],rx1[500],rx2[500];
 	FILE *hlf=fopen(argv[1],"r");
 	hllist=malloc(sizeof(struct hylight));
@@ -64,28 +71,37 @@ int main(int argc, char **argv){
 	while(fgets(buf,1000,hlf)){
 		int i=0;
 		while(buf[i]<=' '&&buf[i]!=0)i++;
-		if(buf[i]==0){fprintf(stderr,"No fg color string on line %d\n",linenum);continue;}
+		if(buf[i]==0)goto incomplete;
 		int j=i;
 		while(buf[j]>' ')j++;
-		if(buf[j]==0){fprintf(stderr,"No bg color string on line %d\n",linenum);continue;}
+		if(buf[j]==0)goto incomplete;
 		buf[j]=0;
 		cur->fg = getcolor(buf+i);
-		if(cur->fg==-1)fprintf(stderr,"Unrecognized fg color %s on line %d\n",buf+i,linenum),cur->fg=9;
+		if(cur->fg==-1){
+			fprintf(stderr,"Unrecognized fg color %s on line %d\n",buf+i,linenum);
+			cur->fg=9;
+		}
 		i=j+1;
 		while(buf[i]<=' '&&buf[i]!=0)i++;
-		if(buf[i]==0){fprintf(stderr,"no bg color string on line %d\n",linenum);continue;}
+		if(buf[i]==0)goto incomplete;
 		j=i;
 		while(buf[j]>' ')j++;
-		if(buf[j]==0){fprintf(stderr,"No regex string on line %d\n",linenum);continue;}
+		if(buf[j]==0)goto incomplete;
 		buf[j]=0;
 		cur->bg = getcolor(buf+i);
-		if(cur->bg==-1)fprintf(stderr,"Unrecognized bg color %s on line %d\n\n",buf+i, linenum),cur->bg=9;
+		if(cur->bg==-1){
+			fprintf(stderr,"Unrecognized bg color %s on line %d\n\n",buf+i, linenum);
+			cur->bg=9;
+		}
 		i=j+1;
 		while(buf[i]<=' '&&buf[i]!=0)i++;
-		if(buf[i]==0){fprintf(stderr,"No regex string on line %d\n",linenum);continue;}
+		if(buf[i]==0)goto incomplete;
 		j=i+1;
 		while(buf[j]!=buf[i]&&buf[j]!=0)j++;
-		if(buf[j]==0)fprintf(stderr,"Unterminated regex starting with %c on line %d\n",buf[i],linenum);
+		if(buf[j]==0){
+			fprintf(stderr,"Unterminated regex starting with %c on line %d\n",buf[i],linenum);
+			exit(1);
+		}
 		buf[j]=0;
 		regcomp(&(cur->beg),buf+i+1,REG_EXTENDED);
 		i=j+1;
@@ -93,7 +109,10 @@ int main(int argc, char **argv){
 		if(buf[i]==0){goto noend;}
 		j=i+1;
 		while(buf[j]!=buf[i]&&buf[j]!=0)j++;
-		if(buf[j]==0)fprintf(stderr,"Unterminated regex starting with %c on line %d\n",buf[i],linenum);
+		if(buf[j]==0){
+			fprintf(stderr,"Unterminated regex starting with %c on line %d\n",buf[i],linenum);
+			exit(1);
+		}
 		if(j==i+1){noend:;
 			cur->noend=1;
 		}else{
@@ -104,9 +123,14 @@ int main(int argc, char **argv){
 		cur->stillon=0;
 		cur->next=malloc(sizeof(struct hylight));
 		cur = cur->next;
+		linenum++;
+		continue;
+		incomplete:
+		fprintf(stderr,"Line %d is incomplete.\n"
+			"Line should have two colors and one or two regexes.\n",
+			linenum++);
 	}
 	cur->next=0;
-	if(DEBUG) fprintf(stderr,"Finished compiling regexes. Ready.\n");
 	int cbuf[1000][2];
 	while(fgets(buf,1000,stdin)){
 		int i;
