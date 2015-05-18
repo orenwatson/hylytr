@@ -1,0 +1,4 @@
+lime default :\<(if|while|else|return|goto|for|do|case|switch|default)\>:
+cyan default :\<(int|char|long|short|bool|size_t|float|double|const|static|extern)\>:
+red default :"([^"]|\\.)*":
+blue default :/\*: :\*/:
