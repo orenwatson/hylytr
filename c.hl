@@ -1,4 +1,14 @@
+green default :#(include|define|ifdef|if|elsif|else|endif|pragma):
 lime default :\<(if|while|else|return|goto|for|do|case|switch|default)\>:
-cyan default :\<(int|char|long|short|bool|size_t|float|double|const|static|extern)\>:
+lime default :&&|\|\|:
+cyan default :\<(int|char|long|short|bool|[a-z]+_t|float|double|const|static|extern|typedef|FILE)\>:
+cyan default :\<(union|enum|struct) [a-z]*:
+yellow default :(\||&|\+|\*|-|/|%|)=:
+magenta default :==|!=|<=|>=|>|<:
+default default :->:
+red default :\<[0-9]+(\.[0-9]*)?(e[0-9]*)?\>:
+red default :\<0x[0-9A-Fa-f]+\>:
+red default :'([^']|\\.|\\[0-7]+)':
 red default :"([^"]|\\.)*":
 blue default :/\*: :\*/:
+blue default ://.*:
