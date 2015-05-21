@@ -1,0 +1,19 @@
+#!/usr/local/bin/hylytr
+black white :\<black\>:
+grey default :\<grey\>:
+maroon default :\<maroon\>:
+red default :\<red\>:
+navy default :\<navy\>:
+blue default :\<blue\>:
+green default :\<green\>:
+lime default :\<lime\>:
+olive default :\<olive\>:
+yellow default :\<yellow\>:
+purple default :\<purple\>:
+magenta default :\<(magenta|fuchsia)\>:
+teal default :\<teal\>:
+cyan default :\<(cyan|aqua)\>:
+silver default :\<silver\>:
+white default :\<white\>:
+default default :\<default\>:
+bold default :\<bold\>:
