@@ -61,7 +61,7 @@ int main(int argc, char **argv){
 		"to the end of what the second matches, if there is a second,\n"
 		"or the end of what the first matches if there is only one regex.\n"
 		"Later lines override the colors set by earlier lines.\n"
-		"Lines starting with # are ignored\n"");
+		"Lines starting with # are ignored\n");
 		exit(1);
 	}
 	char buf[1000],rx1[500],rx2[500];
